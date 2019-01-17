@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using FN.Store.Domain.Mediator;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace FN.Store.CrossCuting.IoC
 {
@@ -6,8 +10,25 @@ namespace FN.Store.CrossCuting.IoC
     {
         public static void RegisterServices(IServiceCollection services)
         {
+            registerMediatr(services);
             registerData(services);
+            registerAppServices(services);
         }
+
+        private static void registerMediatr(IServiceCollection services)
+        {
+            const string applicationAssemblyName = "FN.Store.Domain";
+            var assembly = AppDomain.CurrentDomain.Load(applicationAssemblyName);
+
+            AssemblyScanner
+                .FindValidatorsInAssembly(assembly)
+                .ForEach(result => services.AddScoped(result.InterfaceType, result.ValidatorType));
+
+            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(FailFastRequestBehavior<,>));
+
+            services.AddMediatR();
+        }
+
 
         private static void registerData(IServiceCollection services)
         {
@@ -17,6 +38,11 @@ namespace FN.Store.CrossCuting.IoC
             
             services.AddTransient<Domain.Contracts.Repositories.IProdutoReadRepository, Data.EF.Repositories.ProdutoReadRepositoryEF>();
             services.AddTransient<Domain.Contracts.Repositories.IProdutoWriteRepository, Data.EF.Repositories.ProdutoWriteRepositoryEF>();
+        }
+
+        private static void registerAppServices(IServiceCollection services)
+        {
+            //services.AddTransient<Domain.Contracts.Infra.Service.ISendMail, Services.SendMail>();
         }
     }
 }

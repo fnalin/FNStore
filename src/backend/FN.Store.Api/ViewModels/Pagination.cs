@@ -1,4 +1,4 @@
-﻿namespace FN.Store.Api.Controllers.ViewModels
+﻿namespace FN.Store.Api.ViewModels
 {
     public class Pagination
     {

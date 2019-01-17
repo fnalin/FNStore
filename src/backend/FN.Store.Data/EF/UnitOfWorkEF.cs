@@ -9,12 +9,12 @@ namespace FN.Store.Data.EF
         private readonly StoreDataContext _ctx;
         public UnitOfWorkEF(StoreDataContext ctx) => _ctx = ctx;
 
-        public async Task Commit()
+        public async Task CommitAsync()
         {
             await _ctx.SaveChangesAsync();
         }
 
-        public Task RollBack()
+        public Task RollBackAsync()
         {
             throw new NotImplementedException();
         }
